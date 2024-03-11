@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+
+  my-nats:
+    image: nats:latest
+    ports:
+      - "4222:4222" # Listening for client connections
+      - "6222:6222" # Listening for route connections
+      - "8222:8222" # http monitor
