@@ -50,3 +50,83 @@ https://debezium.io/
 
 => 기존 폴링시스템에서 시퀀스넘버 대신에 시각으로만 하면안되나?
 ... //쿠키에다가 마지막 접근시각 넣어줄 수 있자나..
+
+# NATS 장점
+
+요소 간의 통신을 간소화한다.
+확장하기 쉽고,
+NATS 서버쪾이 바뀐다고 해서 클라이언트를 매번 재시작할 이유가 없다
+적응성이 높음
+클라우드 온프레미스 플랫폼을 혼용한 경우에도 통신 가능
+
+# 사용사례
+
+Cloud Messaging
+
+Services (microservices, service mesh)
+
+Event/Data Streaming (observability, analytics, ML/AI)
+
+Command and Control
+
+IoT and Edge
+
+Telemetry / Sensor Data / Command and Control
+
+Augmenting or Replacing Legacy Messaging Systems
+
+# 내장된 개발패턴
+
+Streams and Services through built-in publish/subscribe, request-reply, and load-balanced queue subscriber patterns. Dynamic request permissioning and request subject obfuscation is supported.
+
+# 통신에서 보장하는 것
+
+At most once, at least once, and exactly once is available in JetStream.
+
+# 멀티테넌시 지원해줌. 분산된 보안
+
+NATS supports true multi-tenancy and decentralized security through accounts and defining shared streams and services.
+
+# 보안관련
+
+NATS supports TLS, NATS credentials, NKEYS (NATS ED25519 keys), username and password, or simple token.
+
+# 메세지 보존과 지속성
+
+Supports memory, file, and database persistence.
+Messages can be replayed by time, count, or sequence number,
+and durable subscriptions are supported.
+With NATS streaming, scripts can archive old log segments to cold storage.
+
+메세지를 보관하는 기능을 제공하기 때문에 필요할 때 꺼내볼 수 있는것 같다. (카톡 안읽은 메세지처럼..)
+
+# 페일오버
+
+Core NATS supports full mesh clustering with self-healing features to provide high availability to clients. NATS streaming has warm failover backup servers with two modes (FT and full clustering). JetStream supports horizontal scalability with built-in mirroring.
+
+# 배포
+
+크고 유연한 배포가 가능하다. 어떤 형태로든 배포할 수 있고 확장 가능하다.
+
+# 모니터링
+
+프로메테우스와 그라파나 대시보드를 지원하며, 경고 기능도 지원한다.
+nats-top 같은 모니터링 도구를 제공해준다.
+사이드카 배포도 가능하고, 간단한 연결-뷰 모델도 지원한다
+
+# 관리
+
+보안과 운영을 독립화한다.
+운영중일때도 설정파일을 바꿀 수 있다.
+
+# 통합
+
+웹소켓, 카프카브리지, 레디스 커넥터,엘라스틱서치, 프로메테우스, .. HTTP, 등을 지원한다
+
+# 보장성
+
+<한번 보내고 잊어버림. 저장안한다>
+At most once QoS: Core NATS offers an at most once quality of service. If a subscriber is not listening on the subject (no subject match), or is not active when the message is sent, the message is not received. This is the same level of guarantee that TCP/IP provides. Core NATS is a fire-and-forget messaging system. It will only hold messages in memory and will never write messages directly to disk.
+
+<제트스트림 기능을 활성화를 화면, 저장 가능. 이 방법말고도 ack, seq 번호로도 같은 기능 구현 가능>
+At-least / exactly once QoS: If you need higher qualities of service (at least once and exactly once), or functionalities such as persistent streaming, de-coupled flow control, and Key/Value Store, you can use NATS JetStream, which is built in to the NATS server (but needs to be enabled). Of course, you can also always build additional reliability into your client applications yourself with proven and scalable reference designs such as acks and sequence numbers.

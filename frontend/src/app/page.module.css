@@ -1,0 +1,66 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6rem;
+}
+
+.description {
+  display: inherit;
+  justify-content: inherit;
+  align-items: inherit;
+  font-size: 0.85rem;
+  max-width: var(--max-width);
+  width: 100%;
+  z-index: 2;
+  font-family: var(--font-mono);
+  border: 1px solid #ffffff;
+}
+
+.messageList {
+  border: 1px solid #ffffff;
+  width: 660px;
+  height: 400px;
+}
+
+.enterChatArea {
+  display: flex;
+  width: 660px;
+  margin-top: 20px;
+}
+
+.writetext {
+  width: 85%;
+  height: 50px;
+  resize: none;
+}
+
+.sendBtn {
+  width: 15%;
+  height: 50px;
+  background-color: #ffffff;
+  border: 1px solid #ffffff;
+  color: #000000;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.sendBtn:hover {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.messageBox {
+  width: 25%;
+  border: 1px solid #ffffff;
+}
+
+.username {
+  color: #ffffff;
+}
+
+.message {
+  color: #ffffff;
+}
