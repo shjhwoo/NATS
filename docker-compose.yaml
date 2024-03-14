@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  client1:
+    build:
+      context: ./client1
+      dockerfile: ../client1.Dockerfile
+    restart: always
+
+  client2:
+    build:
+      context: ./client2
+      dockerfile: ../client2.Dockerfile
+    restart: always
+
+  client3:
+    build:
+      context: ./client3
+      dockerfile: ../client3.Dockerfile
+    restart: always
+
+  my-nats:
+      image: nats:latest
+      ports:
+        - "4222:4222" # Listening for client connections
+        - "6222:6222" # Listening for route connections
+        - "8222:8222" # http monitor
+        - "8080:8080" # Additional port for NATS configuration
+      volumes:
+        - ./tmp:/container # Mounting the host directory to container
+      command: -c /container/nats.conf -js # Specify the configuration file and enable jetstream
