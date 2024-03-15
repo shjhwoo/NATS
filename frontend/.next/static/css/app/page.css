@@ -1,0 +1,70 @@
+/*!*******************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[11].oneOf[7].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[11].oneOf[7].use[3]!./src/app/page.module.css ***!
+  \*******************************************************************************************************************************************************************************************************************************************************************/
+.page_main__GlU4n {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6rem;
+}
+
+.page_description__86bsR {
+  display: inherit;
+  justify-content: inherit;
+  align-items: inherit;
+  font-size: 0.85rem;
+  max-width: var(--max-width);
+  width: 100%;
+  z-index: 2;
+  font-family: var(--font-mono);
+  border: 1px solid #ffffff;
+}
+
+.page_messageList__Lxlh1 {
+  border: 1px solid #ffffff;
+  width: 660px;
+  height: 400px;
+}
+
+.page_enterChatArea__X_VFo {
+  display: flex;
+  width: 660px;
+  margin-top: 20px;
+}
+
+.page_writetext__N5NPV {
+  width: 85%;
+  height: 50px;
+  resize: none;
+}
+
+.page_sendBtn___KbOC {
+  width: 15%;
+  height: 50px;
+  background-color: #ffffff;
+  border: 1px solid #ffffff;
+  color: #000000;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.page_sendBtn___KbOC:hover {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.page_messageBox__6GsDG {
+  width: 25%;
+  border: 1px solid #ffffff;
+}
+
+.page_username__rtyJw {
+  color: #ffffff;
+}
+
+.page_message__abnJo {
+  color: #ffffff;
+}
+
