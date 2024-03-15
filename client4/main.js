@@ -12,6 +12,7 @@ StringCodec,
 // See also JSONCodec.c
 let sc = new StringCodec();
 let natClient
+let myId = Math.floor(Math.random() * 1000)
 
 
 $(function () {
@@ -22,7 +23,7 @@ $(function () {
         const message = $("textarea").val()
         console.log(message)
         sendMessage(message)
-         $("textarea").empty()
+         $("textarea").val('')
     })
 
     $(document).on("keyup", "textarea", function (e) {
@@ -30,51 +31,43 @@ $(function () {
             const message = $(this).val()
             console.log(message)
             sendMessage(message)
-             $("textarea").empty()
+             $("textarea").val('')
         }
     })
 });
 
 async function initialize(){
-// Establish a connection to the NATS demo server. This uses the
-// native WebSocket support built into the NATS server.
-natClient = await connect({
-servers: ["ws://localhost:8080"],
-});
+    natClient = await connect({
+    servers: ["ws://localhost:8080/ws"],
+    });
 
-console.log("client:", natClient)
+    console.log("Connected to " + natClient.getServer());
 
-// Subscribe to the "echo" subject and define a message
-// handler that will respond to the requester.
-const sub = natClient.subscribe(">");
-const handle = (msg) => {
-console.log(msg); 
-console.log(`Received a request: ${sc.decode(msg.data)}`);
-const message = sc.decode(msg.data)
-$("ul").append(`<li>${message}</li>`)
-msg.respond(msg.data);
-}
+    const sub = natClient.subscribe("msg.>");
+    (async () => {
+        for await (const msg of sub) handle(msg)
+    })();
 
-// Wait to receive messages from the subscription and handle them
-// asynchronously..
-(async () => {
-for await (const msg of sub) handle(msg)
-})();
+    const handle = (msg) => {
+        console.log(sc.decode(msg.data))
+        const message = JSON.parse(sc.decode(msg.data))
+        if (message.user != myId){
+            console.log(message);
+            $("ul").append(`<li class="youMsg">${message.text == 'connected'? `${message.user}님이 입장하셨습니다`:`${message.user}: ${message.text}`}</li>`)
+        }else{
+            if (message.text != 'connected'){
+                $("ul").append(`<li class="meMsg">${message.text}</li>`)  
+            }
+        }
+    }
 
-// Now we can send a couple requests to that subject. Note how we
-// are encoding the string data on request and decoding the reply
-// message data.
-let rep = await natClient.request("echo", sc.encode("Hello!"));
-console.log(`Received a reply: ${sc.decode(rep.data)}`);
+    natClient.publish(`msg.${myId}`, sc.encode(`{"user":${myId},"text":"connected"}`));
 
-rep = await natClient.request("echo", sc.encode("World!"));
-console.log(`Received a reply: ${sc.decode(rep.data)}`);
-
-// Finally drain the connection which will handle any outstanding
-// messages before closing the connection.
-//natClient.drain(); 쓰지마
+    // Finally drain the connection which will handle any outstanding
+    // messages before closing the connection.
+    //natClient.drain(); 쓰지마
 }
 
 function sendMessage(message){
-    natClient.publish("echo", sc.encode( message));
+    natClient.publish(`msg.${myId}`, sc.encode(`{"user":"${myId}","text":"${message.trimEnd()}"}`));
 }

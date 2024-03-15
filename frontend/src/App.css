@@ -1,0 +1,71 @@
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Set the height of the body to the full viewport height */
+  margin: 0; /* Remove default margin */
+}
+
+.chatroom {
+  background-color: #f4f4f4;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  width: 400px;
+}
+
+.messages {
+  border: 2px solid #ccc;
+  padding: 10px;
+  height: 300px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+.message {
+  margin-bottom: 10px;
+}
+
+.message .username {
+  font-weight: bold;
+}
+
+.mymessage{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+textarea {
+  width: 70%;
+  padding: 10px;
+  border: 1px solid #000;
+  border-radius: 5px;
+  resize: none;
+  height: 100%;
+  width: 80%;
+}
+
+.mymessage button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  height: 100%;
+  width: 18%;
+}
+
+.mymessage button:hover {
+  background-color: #0056b3;
+}
+
+
+ul{
+  list-style-type: none;
+  padding: 0;
+}
+
+.meMsg {
+  text-align: right;
+}

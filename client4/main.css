@@ -15,6 +15,7 @@ body {
   
   .messages {
     border: 2px solid #ccc;
+    padding: 10px;
     height: 300px;
     overflow-y: auto;
     margin-bottom: 10px;
@@ -59,3 +60,12 @@ body {
     background-color: #0056b3;
   }
   
+
+  ul{
+    list-style-type: none;
+    padding: 0;
+  }
+
+  .meMsg {
+    text-align: right;
+  }
