@@ -13,8 +13,6 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 	"golang.org/x/net/context"
-
-	"github.com/gorilla/websocket"
 )
 
 var RDB *sqlx.DB
@@ -22,27 +20,6 @@ var JetStream jetstream.JetStream
 var JetStreamKV jetstream.KeyValue
 
 func main() {
-
-	wsc, _, err := websocket.DefaultDialer.Dial("ws://my-nats:8080", nil)
-	if err != nil {
-		fmt.Println("error dialing websocket server", err)
-		return
-	}
-	go func() {
-		for {
-			_, message, err := wsc.ReadMessage()
-			if err != nil {
-				fmt.Println("error reading message from websocket server", err)
-				return
-			}
-
-			fmt.Println("websocket message:", string(message))
-			//연결해서 클라이언트 종료됨을 감지하면
-			//DB에다가 사용자 lastAccess 시간을 저장한다.
-
-		}
-	}()
-
 	// connect to NATS (https://cloud.synadia.com/ 에서 모니터링 가능)
 	// nc, _ := nats.Connect("connect.ngs.global", nats.UserCredentials("./NGS-Default-CLI.creds"), nats.Name("Test Chat App"))
 
@@ -53,6 +30,27 @@ func main() {
 	}
 
 	defer nc.Drain()
+
+	//사용자 종료 감지 로직:
+
+	/*
+		type ErrConsumerSequenceMismatch ¶
+		added in v1.11.0
+		type ErrConsumerSequenceMismatch struct {
+			// StreamResumeSequence is the stream sequence from where the consumer
+			// should resume consuming from the stream.
+			StreamResumeSequence uint64
+
+			// ConsumerSequence is the sequence of the consumer that is behind.
+			ConsumerSequence uint64
+
+			// LastConsumerSequence is the sequence of the consumer when the heartbeat
+			// was received.
+			LastConsumerSequence uint64
+		}
+		ErrConsumerSequenceMismatch represents an error from a consumer that received a Heartbeat including sequence different to the one expected from the view of the client.
+
+	*/
 
 	js, err := jetstream.New(nc)
 	if err != nil {
