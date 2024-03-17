@@ -13,6 +13,8 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 	"golang.org/x/net/context"
+
+	"github.com/gorilla/websocket"
 )
 
 var RDB *sqlx.DB
@@ -20,7 +22,26 @@ var JetStream jetstream.JetStream
 var JetStreamKV jetstream.KeyValue
 
 func main() {
-	fmt.Println("starting jetStream client...")
+
+	wsc, _, err := websocket.DefaultDialer.Dial("ws://my-nats:8080", nil)
+	if err != nil {
+		fmt.Println("error dialing websocket server", err)
+		return
+	}
+	go func() {
+		for {
+			_, message, err := wsc.ReadMessage()
+			if err != nil {
+				fmt.Println("error reading message from websocket server", err)
+				return
+			}
+
+			fmt.Println("websocket message:", string(message))
+			//연결해서 클라이언트 종료됨을 감지하면
+			//DB에다가 사용자 lastAccess 시간을 저장한다.
+
+		}
+	}()
 
 	// connect to NATS (https://cloud.synadia.com/ 에서 모니터링 가능)
 	// nc, _ := nats.Connect("connect.ngs.global", nats.UserCredentials("./NGS-Default-CLI.creds"), nats.Name("Test Chat App"))
@@ -72,8 +93,11 @@ func main() {
 	fmt.Println(loginSub, "login SUB")
 
 	MSG, err := nc.Subscribe("meta.ALL", func(message *nats.Msg) {
+
+		last1hour := time.Now().Add(-time.Hour) //최근 1시간 내의 메세지만 보여주는 기능.
 		cons, err := stream.CreateOrUpdateConsumer(jetCtx, jetstream.ConsumerConfig{
-			DeliverPolicy: jetstream.DeliverAllPolicy,
+			DeliverPolicy: jetstream.DeliverByStartTimePolicy, //최근 1시간 내의 메세지만 보여주는 기능.
+			OptStartTime:  &last1hour,                         //최근 1시간 내의 메세지만 보여주는 기능.
 			FilterSubject: "msg.>",
 			Durable:       "getArchivedMessages",
 		})
