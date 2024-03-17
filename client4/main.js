@@ -1,23 +1,35 @@
-// ES6 modules can be natively used by set the script type
-// to "module". Now we can use native imports.
 import {
   connect,
   StringCodec,
+  Empty,
 } from "https://cdn.jsdelivr.net/npm/nats.ws@1.10.0/esm/nats.js";
 
-// Initialize a string codec for encoding and decoding message data.
-// This is because NATS message data are just byte arrays, so proper
-// encoding and decoding needs to be performed when using the working
-// with the message data.
-// See also JSONCodec.c
-let sc = new StringCodec();
 let natClient;
-let myId = Math.floor(Math.random() * 1000);
+let sc = new StringCodec();
 
 $(function () {
   initialize();
+});
 
-  $(document).on("click", "button", function (e) {
+const myId = document.cookie
+  .split(";")
+  .filter((cookie) => {
+    return cookie.includes("NATSLOGIN_");
+  })[0]
+  .split("=")[0]
+  .split("_")[1];
+
+async function initialize() {
+  //서버측에서는 모든메세지 가져와라는 플래그를 구독중, 해당 요청을 받아서 스트림에 대한 컨슈머를 생성하고
+  //메세지를 다 빼오고, 응답으로 보내준다.
+  await ConnectNats();
+
+  console.log("init: ", location.href);
+
+  initChatRoom();
+
+  //채팅방
+  $(document).on("click", "button.msg", function (e) {
     e.preventDefault();
     const message = $("textarea").val();
     console.log(message);
@@ -33,38 +45,62 @@ $(function () {
       $("textarea").val("");
     }
   });
-});
 
-async function initialize() {
-  //
-  const response = await fetch("http://localhost:9090/messages/history");
-  const messages = await response.json();
+  function sendMessage(message) {
+    natClient.publish(
+      `msg.${myId}`,
+      sc.encode(`{"user":"${myId}","text":"${message.trimEnd()}"}`)
+    );
+  }
+}
 
-  if (messages.length > 0) {
-    messages.forEach((message) => {
-      const parsedMessage = JSON.parse(message);
-      if (parsedMessage.user != myId) {
-        $("ul").append(
-          `<li class="youMsg">${
-            parsedMessage.text == "connected"
-              ? `${parsedMessage.user}님이 입장하셨습니다`
-              : `${parsedMessage.user}: ${parsedMessage.text}`
-          }</li>`
-        );
-      } else {
-        if (parsedMessage.text != "connected") {
-          $("ul").append(`<li class="meMsg">${parsedMessage.text}</li>`);
+async function ConnectNats() {
+  console.log("Connecting to NATS server");
+  natClient = await connect({
+    servers: ["ws://localhost:8080"],
+  });
+  console.log("Connected to " + natClient.getServer());
+}
+
+function initChatRoom() {
+  natClient.publish(
+    `msg.${myId}`,
+    sc.encode(`{"user":"${myId}","text":"connected"}`)
+  );
+
+  //모든 메세지를 가져와라는 요청을 publish
+  natClient
+    .request(`meta.ALL`, Empty, { timeout: 5000 }) //msg로 하니까 내용 못받고 스트림과 직통해서... 안되더라. 이름 다르게 해야 함!!반드시!!
+    .then((m) => {
+      console.log(sc.decode(m.data));
+      const messageList = JSON.parse(sc.decode(m.data));
+
+      $("span").text(messageList.length);
+
+      for (let i = 0; i < messageList.length; i++) {
+        let message = messageList[i].trim();
+        if (message == "") continue;
+
+        message = JSON.parse(message);
+
+        if (message.user != myId) {
+          $("ul").append(
+            `<li class="youMsg">${
+              message.text == "connected"
+                ? `${message.user}님이 입장하셨습니다`
+                : `${message.user}: ${message.text}`
+            }</li>`
+          );
+        } else {
+          if (message.text != "connected") {
+            $("ul").append(`<li class="meMsg">${message.text}</li>`);
+          }
         }
       }
+    })
+    .catch((err) => {
+      console.log(`problem with request: ${err.message}`);
     });
-  }
-  // Process the messages as needed
-
-  natClient = await connect({
-    servers: ["ws://localhost:8080/ws"],
-  });
-
-  console.log("Connected to " + natClient.getServer());
 
   const sub = natClient.subscribe("msg.>");
   (async () => {
@@ -74,8 +110,8 @@ async function initialize() {
   const handle = (msg) => {
     console.log(sc.decode(msg.data));
     const message = JSON.parse(sc.decode(msg.data));
+
     if (message.user != myId) {
-      console.log(message);
       $("ul").append(
         `<li class="youMsg">${
           message.text == "connected"
@@ -89,20 +125,8 @@ async function initialize() {
       }
     }
   };
-
-  natClient.publish(
-    `msg.${myId}`,
-    sc.encode(`{"user":${myId},"text":"connected"}`)
-  );
-
-  // Finally drain the connection which will handle any outstanding
-  // messages before closing the connection.
-  //natClient.drain(); 쓰지마
 }
 
-function sendMessage(message) {
-  natClient.publish(
-    `msg.${myId}`,
-    sc.encode(`{"user":"${myId}","text":"${message.trimEnd()}"}`)
-  );
-}
+// Finally drain the connection which will handle any outstanding
+// messages before closing the connection.
+//natClient.drain(); 쓰지마
