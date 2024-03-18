@@ -28,6 +28,7 @@ async function initialize() {
 
   initChatRoom();
 
+
   //채팅방
   $(document).on("click", "button.msg", function (e) {
     e.preventDefault();
@@ -59,10 +60,45 @@ async function ConnectNats() {
   natClient = await connect({
     servers: ["ws://localhost:8080"],
   });
+  console.log("natClient info: ", natClient)
+  natClient.protocol.info.client_id = myId;
+
   console.log("Connected to " + natClient.getServer());
 }
 
 function initChatRoom() {
+  //마우스 움직임 감지
+  $(document).on('mousemove', function(e){
+    let x = e.clientX;
+    let y = e.clientY;
+
+    natClient.publish(
+      `cursor.${myId}`,
+      sc.encode(`{"user":"${myId}","x":${x},"y":${y}}`)
+    );
+  })
+
+  //상대방의 마우스 움직임에 대한 처리
+  const othercursorSub = natClient.subscribe("cursor.>");
+  (async () => {
+    for await (const msg of othercursorSub) handleCursor(msg);
+  })();
+  const handleCursor = (msg) => {
+    const otherUserPositionData = JSON.parse(sc.decode(msg.data))
+    const userId = otherUserPositionData.user;
+
+    if (userId == myId) return;
+    const userX = otherUserPositionData.x;
+    const userY = otherUserPositionData.y;
+
+    //상대방의 마우스 위치를 표시
+    $('.youCursor').text(userId);
+    $('.youCursor').css('left', (userX)+"px");
+    $('.youCursor').css('top', userY+"px");
+  }
+
+
+
   natClient.publish(
     `msg.${myId}`,
     sc.encode(`{"user":"${myId}","text":"connected"}`)

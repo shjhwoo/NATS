@@ -4,7 +4,6 @@ go 1.21.5
 
 require (
 	github.com/go-sql-driver/mysql v1.8.0
-	github.com/gorilla/websocket v1.5.1
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/nats-io/nats.go v1.33.1
 	golang.org/x/net v0.22.0

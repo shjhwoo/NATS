@@ -48,7 +48,8 @@ func main() {
 			// was received.
 			LastConsumerSequence uint64
 		}
-		ErrConsumerSequenceMismatch represents an error from a consumer that received a Heartbeat including sequence different to the one expected from the view of the client.
+		ErrConsumerSequenceMismatch represents an error from a consumer
+		 that received a Heartbeat including sequence different to the one expected from the view of the client.
 
 	*/
 
@@ -165,9 +166,14 @@ func main() {
 	<-exitChan
 }
 
+func monitorClosedClients() {
+	//일정 시간간격으로 연결된 클라이언트 확인(10초마다...)
+	//즉시 알 수는 없나...?
+}
+
 func ConnectRDB() {
 	// rdb 연결
-	db, err := sqlx.Open("mysql", "root:1234@tcp(host.docker.internal:3306)/natsuser")
+	db, err := sqlx.Open("mysql", "root:!mgrsol123@tcp(host.docker.internal:3306)/natsuser")
 	if err != nil {
 		fmt.Println("error connecting to MySQL database:", err)
 		return

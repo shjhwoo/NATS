@@ -5,6 +5,15 @@ body {
     height: 100vh; /* Set the height of the body to the full viewport height */
     margin: 0; /* Remove default margin */
   }
+
+.youCursor{
+    background-color: #FD7013;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    position: absolute;
+    color: blueviolet;
+  }
   
   .chatroom {
     background-color: #f4f4f4;
